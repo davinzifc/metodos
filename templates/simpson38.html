@@ -1,0 +1,141 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<div class="jumbotron">
+  <h1 class="display-4">Simpson &#8540;</h1>
+  <p class="lead">Este metodo consiste en la aproximacion del calculo del area plana bajo una curva utilizando
+    trapecios curvilıneos a partir una interpolacion con una funcion cuadratica.</p>
+  <hr class="my-4">
+  <form action="/calc38" method="POST">
+    <div class="input-group mb-3"  style="width: 60%;">
+      <div class="input-group-prepend">
+        <span class="input-group-text" id="inputGroup-sizing-default">F(x)</span>
+      </div>
+      <input type="text" name="function" id="eq1" value="{{datos.0}}" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-default">
+    </div>
+    <div style="display: flex;">
+      <div class="input-group mb-3" style="width: 30%;">
+        <div class="input-group-prepend" >
+          <span class="input-group-text" id="inputGroup-sizing-default">Extreme a</span>
+        </div>
+        <input type="text" value="{{datos.1}}" name="extremea" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-default">
+      </div>
+      <div class="input-group mb-3" style="padding-left: 15px; width: 30%;">
+        <div class="input-group-prepend">
+          <span class="input-group-text" id="inputGroup-sizing-default">Extreme b</span>
+        </div>
+        <input type="text" value="{{datos.2}}" name="extremeb" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-default">
+      </div>
+    </div>
+    <div class="input-group mb-3" style="width: 60%;">
+      <div class="input-group-prepend">
+        <span class="input-group-text"  id="inputGroup-sizing-default">Partitions</span>
+      </div>
+      <input type="number" value="{{datos.3}}" name="partitions" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-default">
+    </div>
+    <div class="form-check" style="margin-bottom: 10px;">
+      <input type="checkbox" name="absolute" class="form-check-input" id="exampleCheck1">
+      <label class="form-check-label" for="exampleCheck1">Absolute area</label>
+    </div>
+    <button class="btn btn-primary btn-lg"  role="button" type="submit">Calculate</button>
+    <div class="btn btn-primary btn-lg"  role="button" onclick="borrar()"><svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-trash" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+      <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+      <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4L4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+    </svg></div>
+  </form>
+  <hr class="my-4">
+  <style>
+    .cnt1{
+      position: relative;
+      display: flex;
+      margin-bottom: 20px;
+      background-color: #FFF;
+      width: 60%;
+      border-radius: 5px;
+      padding: 0 0 10px 10px;
+      border: 1px solid #ced4da;
+    }
+    .cnt1 .integ{
+      font-size: 50px;
+    }
+  
+    .cnt1 .extr{
+      position: absolute;
+    }
+  
+    .b{
+      transform: translate(27px, 5px);
+      font-size: 15px;
+    }
+  
+    .a{
+      transform: translate(27px, 55px);
+      font-size: 15px;
+    }
+  
+    .fx{
+      transform: translate(45px, 25px);
+      font-size: 20px;
+    }
+  </style>
+  <div class="cnt1">
+    <span class="integ">&#8747;</span>
+    <span class="extr b"><i>{{datos.2}}</i></span>
+    <span class="extr a"><i>{{datos.1}}</i></span>
+    <span id="integral" class="extr fx">{{datos.0}} <i>dx</i></span>
+  </div>
+  <div class="input-group mb-3" style="width: 60%;">
+    <div class="input-group-prepend">
+      <span class="input-group-text" id="inputGroup-sizing-default">Aerea</span>
+    </div>
+    <div type="number" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-default">{{area}}</div>
+  </div>
+  <div class="input-group mb-3" style="width: 60%;">
+    <div class="input-group-prepend">
+      <span class="input-group-text" id="inputGroup-sizing-default">Error</span>
+    </div>
+    <div type="number" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-default">{{error}}</div>
+  </div>
+
+<form id="form">
+</form>
+<h3 class="display-5">Graph</h3>
+<div id="plot" style="background-color: #FFF; width: 550px; border-radius: 5px;"></div>
+
+</div>
+
+<script>
+  console.log(document.getElementById('eq1').value.replaceAll("**","^").replaceAll("ln", "log"))
+  function draw() {
+    try {
+      functionPlot({
+        target: '#plot',
+        data: [{
+          fn: document.getElementById('eq1').value.replaceAll("**","^").replaceAll("ln", "log"),
+          sampler: 'builtIn',  // this will make function-plot use the evaluator of math.js
+          graphType: 'polyline'
+        }]
+      });
+    }
+    catch (err) {
+      console.log(err);
+      alert(err);
+    }
+  }
+
+  document.getElementById('form').onsubmit = function (event) {
+    event.preventDefault();
+    draw();
+  };
+
+  draw();
+  function borrar(){
+    document.getElementsByName("function")[0].value =  "";
+    document.getElementsByName("extremea")[0].value =  "";
+    document.getElementsByName("extremeb")[0].value =  "";
+    document.getElementsByName("partitions")[0].value =  "";
+  }
+</script>
+
+{% endblock%}
