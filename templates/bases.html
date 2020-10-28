@@ -1,0 +1,71 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<div class="jumbotron">
+  <h1 class="display-4">Cambio de base</h1>
+  <p class="lead">En un sistema de numeración posicional, se le llama base al número que define el orden de magnitud en que se ve incrementada cada una de las cifras sucesivas que componen el número. Es también la cantidad de símbolos presentes en dicho sistema. Por ejemplo, el sistema de numeración decimal (el más utilizado en la actualidad) utiliza como base el número 10 (diez): hay 10 símbolos o dígitos, y cada uno de ellos se incrementa en un orden de magnitud de 10 por cada posición consecutiva.</p>
+  <hr class="my-4">
+  <form action="/calcBass" method="POST">
+    <div class="form-row">
+      <div class="form-group col-md-2">
+        <select id="inputState" class="form-control" name="bass">
+          <option selected>Base 2</option>
+          <option>Base 8</option>
+          <option>Base 10</option>
+          <option>Base 16</option>
+          <option>IEEE 32</option>
+          <option>IEEE 64</option>
+        </select>
+      </div>
+      <div class="input-group mb-3"  style="width: 70%;">
+        <div class="input-group-prepend">
+          <span class="input-group-text" id="inputGroup-sizing-default">Value</span>
+        </div>
+        <input type="text" name="value" id="eq1" value="" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-default">
+      </div>
+    </div>
+    <button class="btn btn-primary btn-lg"  role="button" type="submit">Calculate</button>
+    <div class="btn btn-primary btn-lg"  role="button" onclick="borrar()">
+      <i class="fas fa-eraser"></i>
+  </div>
+  </form>
+  <hr class="my-4">
+  <div class="input-group mb-3" style="width: 60%;">
+    <div class="input-group-prepend" >
+      <span class="input-group-text "  style="width: 90px;" id="inputGroup-sizing-default">Base 2</span>
+    </div>
+    <div type="number"  style="overflow-x: auto;" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-default">{{datos.0}}</div>
+  </div>
+  <div class="input-group mb-3" style="width: 60%;">
+    <div class="input-group-prepend" >
+      <span class="input-group-text "  style="width: 90px;" id="inputGroup-sizing-default">Base 8</span>
+    </div>
+    <div type="number" style="overflow-x: auto;" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-default">{{datos.1}}</div>
+  </div>
+  <div class="input-group mb-3" style="width: 60%;">
+    <div class="input-group-prepend" >
+      <span class="input-group-text "  style="width: 90px;" id="inputGroup-sizing-default">Base 10</span>
+    </div>
+    <div type="number" style="overflow-x: auto;"  class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-default">{{datos.2}}</div>
+  </div>
+  <div class="input-group mb-3" style="width: 60%;">
+    <div class="input-group-prepend" >
+      <span class="input-group-text "  style="width: 90px;" id="inputGroup-sizing-default">Base 16</span>
+    </div>
+    <div type="number" style="overflow-x: auto;" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-default">{{datos.3}}</div>
+  </div>
+  <div class="input-group mb-3" style="width: 60%;">
+    <div class="input-group-prepend" >
+      <span class="input-group-text "  style="width: 90px;" id="inputGroup-sizing-default">IEEE 32</span>
+    </div>
+    <div type="number" style="overflow-x: auto;" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-default">{{datos.4}}</div>
+  </div>
+  <div class="input-group mb-3" style="width: 60%;">
+    <div class="input-group-prepend" >
+      <span class="input-group-text "  style="width: 90px;" id="inputGroup-sizing-default">IEEE 64</span>
+    </div>
+    <div type="number" style="overflow-x: auto;" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-default">{{datos.5}}</div>
+  </div>
+
+{% endblock%}

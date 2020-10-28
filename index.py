@@ -5,6 +5,13 @@ from MetodoMontecarlo import MetodoMontercarlo
 from Metodosrectangulos import MetodoReactangulos
 from MetodoTrapecio import MetodoTrapecio
 import numpy as np
+from conversoBaseBinaria import ConversorBaseBinaria as Binario
+from conversoBaseDecimal import ConversorBaseDecimal as Decimal
+from conversoBaseHexadecimal import ConversorBaseHexadecimal as Hexadecimal
+from conversoBaseOctal import ConversorBaseOctal as Octal
+from conversoIEEE32 import conversoIEEE32 as bits32
+from conversoIEEE64 import conversoIEEE64 as bits64
+import re
 
 app = Flask(__name__)
 simp13 = [""]*5
@@ -13,6 +20,7 @@ simp38 = [""]*5
 simp38[4] = False
 monte = [""]*4
 rect = [""]*4
+bass1 = [""]*2
 # Creating simple Routes 
 @app.route('/test')
 def test():
@@ -40,6 +48,96 @@ def rectangulos():
         area1 = [obj.izquierdo(), obj.central(), obj.derecho(), obj2.trapecios()]
         rect1 = rect
     return render_template("rectangulos.html", area = area1, datos = rect1 )
+
+@app.route('/bases')
+def bases():
+    global bass1
+    datos1 = [""]*6
+    if not bass1 or bass1[1] == "":
+        bass1 = [""] * 2
+    else:
+        if(bass1[0] == "Base 2"):
+            if re.match("^[0-1.]*$", bass1[1]):
+                obj = Binario(bass1[1])
+                datos1[0] = bass1[1]
+                datos1[1] = obj.binarioToOctalEnteroFraccion()
+                datos1[2] = obj.binarioToDecimalEnteroFraccion()
+                datos1[3] = obj.binarioToHexaEnteroFraccion()
+                obj1 = bits32()
+                obj2 = bits64()
+                datos1[4] = obj1.trasformDecimalTo32(str(datos1[2]))
+                datos1[5] = obj2.trasformDecimalTo64(str(datos1[2]))
+            else:
+                print(bass1[1]+" mas de 1 o contiene letras")
+        if(bass1[0] == "Base 8"):
+            if re.match("^[0-7.]*$", bass1[1]):
+                obj = Octal(bass1[1])
+                datos1[0] = obj.octalToBinario()
+                datos1[1] = bass1[1]
+                datos1[2] = obj.octalToDecimal()
+                datos1[3] = obj.octalToHexa()
+                obj1 = bits32()
+                obj2 = bits64()
+                datos1[4] = obj1.trasformDecimalTo32(str(datos1[2]))
+                datos1[5] = obj2.trasformDecimalTo64(str(datos1[2]))
+            else:
+                print(bass1[1]+" mas de 7 o contiene letras")
+        if(bass1[0] == "Base 10"):
+            if re.match("^[0-9.]*$", bass1[1]):
+                obj = Decimal(bass1[1])
+                datos1[0] = obj.decimalToBinarioEnteroFraccion()
+                datos1[1] = obj.decimalToOctal()
+                datos1[2] = bass1[1]
+                datos1[3] = obj.decimalToHexa()
+                obj1 = bits32()
+                obj2 = bits64()
+                datos1[4] = obj1.trasformDecimalTo32(str(datos1[2]))
+                datos1[5] = obj2.trasformDecimalTo64(str(datos1[2]))
+            else:
+                print(bass1[1]+" contiene letras")
+        if(bass1[0] == "Base 16"):
+            bass1[1] = bass1[1].upper()
+            if re.match("^[0-9A-F.]*$", bass1[1]):
+                obj = Hexadecimal(bass1[1])
+                datos1[0] = obj.hexadecimalToBinario()
+                datos1[1] = obj.hexadecimalToOctal()
+                datos1[2] = obj.hexadecimalToDecimal()
+                datos1[3] = bass1[1]
+                obj1 = bits32()
+                obj2 = bits64()
+                datos1[4] = obj1.trasformDecimalTo32(str(datos1[2]))
+                datos1[5] = obj2.trasformDecimalTo64(str(datos1[2]))
+            else:
+                print(bass1[1]+" contiene letras no aceptadas")
+        if(bass1[0] == "IEEE 32"):
+            bass1[1] = bass1[1].upper()
+            if re.match("^[0-1.]*$", bass1[1]) and len(bass1[1]) <= 32:
+                obj = bits32()
+                datos1[2] = obj.trasformFrom32(bass1[1])
+                obj4 = Decimal(str(datos1[2]))
+                datos1[0] = obj4.decimalToBinarioEnteroFraccion()
+                datos1[1] = obj4.decimalToOctal()
+                datos1[3] = obj4.decimalToHexa()
+                obj2 = bits64()
+                datos1[4] = bass1[1]
+                datos1[5] = obj2.trasformDecimalTo64(str(datos1[2]))
+            else:
+                print(bass1[1]+" es mayor a 1 tiene mas de 32 caracteres")
+        if(bass1[0] == "IEEE 64"):
+            bass1[1] = bass1[1].upper()
+            if re.match("^[0-1.]*$", bass1[1]) and len(bass1[1]) <= 64:
+                obj = bits64()
+                datos1[2] = obj.trasformFrom64(bass1[1])
+                obj4 = Decimal(str(datos1[2]))
+                datos1[0] = obj4.decimalToBinarioEnteroFraccion()
+                datos1[1] = obj4.decimalToOctal()
+                datos1[3] = obj4.decimalToHexa()
+                obj2 = bits32()
+                datos1[4] = obj2.trasformDecimalTo32(str(datos1[2]))
+                datos1[5] = bass1[1]
+            else:
+                print(bass1[1]+" es mayor a 1 tiene mas de 64 caracteres")
+    return render_template("bases.html", datos = datos1)
 
 
 @app.route('/simpson13')
@@ -95,6 +193,14 @@ def calc38():
         except:
             simp38[4] = False
     return redirect(url_for('simpson38'))
+
+@app.route('/calcBass', methods = ['POST'])
+def calcBass():
+    if request.method == 'POST':
+        bass1[0] = request.form['bass']
+        bass1[1] = request.form['value']
+        print(bass1[0])
+    return redirect(url_for('bases'))
 
 @app.route('/calcMonte', methods = ['POST'])
 def calcMonte():
